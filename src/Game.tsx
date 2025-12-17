@@ -1,10 +1,29 @@
 import { useState, useEffect, useRef } from 'react'
 
+type HexGrid = {
+  q: number
+  r: number
+  s: number
+  state: number
+  stateChangeTime: number
+  fallTime: number
+}
+
+type Penguin = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  dead: boolean
+  falling: boolean
+  fallStartTime: number
+}
+
 const HexIceGame = () => {
-  const canvasRef = useRef(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [gameState, setGameState] = useState('countdown') // countdown, playing, p1won, p2won
   const [countdown, setCountdown] = useState(3)
-  const [hexGrid, setHexGrid] = useState([])
+  const [hexGrid, setHexGrid] = useState<HexGrid[]>([])
   const [canvasSize, setCanvasSize] = useState(800)
 
   // 게임 설정
@@ -15,7 +34,10 @@ const HexIceGame = () => {
   const FRICTION = 0.75
 
   // 펭귄 상태
-  const penguinRef = useRef({
+  const penguinRef = useRef<{
+    p1: Penguin
+    p2: Penguin
+  }>({
     p1: {
       x: 0,
       y: 0,
@@ -37,10 +59,10 @@ const HexIceGame = () => {
   })
 
   const lastTimeRef = useRef(Date.now())
-  const hexGridRef = useRef([])
   const BASE_CANVAS_SIZE = 800
+  const hexGridRef = useRef<HexGrid[]>([])
 
-  const keysRef = useRef({
+  const keysRef = useRef<Record<KeyboardEvent['key'], boolean>>({
     w: false,
     a: false,
     s: false,
@@ -52,20 +74,20 @@ const HexIceGame = () => {
   })
 
   // 육각형 좌표를 픽셀 좌표로 변환
-  const hexToPixel = (q, r) => {
+  const hexToPixel = (q: number, r: number) => {
     const x = HEX_SIZE * ((3 / 2) * q)
     const y = HEX_SIZE * ((Math.sqrt(3) / 2) * q + Math.sqrt(3) * r)
     return { x, y }
   }
 
   // 픽셀 좌표를 육각형 좌표로 변환
-  const pixelToHex = (x, y) => {
+  const pixelToHex = (x: number, y: number) => {
     const q = ((2 / 3) * x) / HEX_SIZE
     const r = ((-1 / 3) * x + (Math.sqrt(3) / 3) * y) / HEX_SIZE
     return axialRound(q, r)
   }
 
-  const axialRound = (q, r) => {
+  const axialRound = (q: number, r: number) => {
     const s = -q - r
     let rq = Math.round(q)
     let rr = Math.round(r)
@@ -85,7 +107,13 @@ const HexIceGame = () => {
   }
 
   // 육각형 그리기
-  const drawHex = (ctx, x, y, size, hex) => {
+  const drawHex = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+    hex: HexGrid,
+  ) => {
     ctx.beginPath()
     for (let i = 0; i < 6; i++) {
       const angle = (Math.PI / 3) * i
@@ -121,7 +149,14 @@ const HexIceGame = () => {
   }
 
   // 펭귄 그리기
-  const drawPenguin = (ctx, x, y, color, falling, fallStartTime) => {
+  const drawPenguin = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    color: string,
+    falling: boolean,
+    fallStartTime: number,
+  ) => {
     if (falling) {
       const elapsed = Date.now() - fallStartTime
       const fallProgress = Math.min(elapsed / 800, 1)
@@ -217,7 +252,7 @@ const HexIceGame = () => {
   }
 
   // 충돌 처리
-  const handleCollision = (p1, p2) => {
+  const handleCollision = (p1: Penguin, p2: Penguin) => {
     const dx = p2.x - p1.x
     const dy = p2.y - p1.y
     const dist = Math.sqrt(dx * dx + dy * dy)
@@ -267,7 +302,7 @@ const HexIceGame = () => {
 
   // 초기화
   useEffect(() => {
-    const grid = []
+    const grid: HexGrid[] = []
     for (let q = -HEX_LAYERS; q <= HEX_LAYERS; q++) {
       for (let r = -HEX_LAYERS; r <= HEX_LAYERS; r++) {
         const s = -q - r
@@ -334,9 +369,9 @@ const HexIceGame = () => {
     const canvas = canvasRef.current
     if (!canvas || hexGrid.length === 0) return
 
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d')!
 
-    let animationId
+    let animationId: number
     const gameLoop = () => {
       if (gameState !== 'playing') {
         lastTimeRef.current = Date.now()
@@ -444,7 +479,6 @@ const HexIceGame = () => {
       if (!p1.dead && !p2.dead && !p1.falling && !p2.falling) {
         handleCollision(p1, p2)
       }
-
       // 타일 체크
       ;[p1, p2].forEach((penguin, idx) => {
         if (penguin.dead) return
@@ -542,14 +576,14 @@ const HexIceGame = () => {
 
   // 키보드 이벤트
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key in keysRef.current) {
         e.preventDefault()
         keysRef.current[e.key] = true
       }
     }
 
-    const handleKeyUp = (e) => {
+    const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key in keysRef.current) {
         e.preventDefault()
         keysRef.current[e.key] = false
