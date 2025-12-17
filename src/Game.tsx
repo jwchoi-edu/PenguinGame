@@ -140,7 +140,15 @@ const HexIceGame = () => {
     // 그림자 (펭귄 밑에)
     ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
     ctx.beginPath();
-    ctx.ellipse(x, y + 22, PENGUIN_RADIUS * 1.2, PENGUIN_RADIUS * 0.4, 0, 0, Math.PI * 2);
+    ctx.ellipse(
+      x,
+      y + 22,
+      PENGUIN_RADIUS * 1.2,
+      PENGUIN_RADIUS * 0.4,
+      0,
+      0,
+      Math.PI * 2
+    );
     ctx.fill();
 
     // 날개 (뒤쪽)
@@ -312,15 +320,15 @@ const HexIceGame = () => {
       const headerHeight = 200; // 헤더 + 여백
       const availableHeight = window.innerHeight - headerHeight;
       const availableWidth = window.innerWidth - 100; // 좌우 여백
-      
+
       // 정사각형 유지하면서 더 작은 쪽에 맞춤
       const size = Math.min(availableHeight, availableWidth, 800);
       setCanvasSize(Math.max(400, size)); // 최소 400px
     };
 
     updateCanvasSize();
-    window.addEventListener('resize', updateCanvasSize);
-    return () => window.removeEventListener('resize', updateCanvasSize);
+    window.addEventListener("resize", updateCanvasSize);
+    return () => window.removeEventListener("resize", updateCanvasSize);
   }, []);
 
   // 게임 루프
@@ -339,11 +347,15 @@ const HexIceGame = () => {
       }
 
       const currentTime = Date.now();
-      const deltaTime = Math.min((currentTime - lastTimeRef.current) / 16.67, 3); // 60fps 기준, 최대 3배 제한
+      const deltaTime = Math.min(
+        (currentTime - lastTimeRef.current) / 16.67,
+        3
+      ); // 60fps 기준, 최대 3배 제한
       lastTimeRef.current = currentTime;
-        
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;const scale = canvas.width / BASE_CANVAS_SIZE * 1.15; // 스케일 계산
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const scale = (canvas.width / BASE_CANVAS_SIZE) * 1.15; // 스케일 계산
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#e6f7ff";
@@ -605,64 +617,73 @@ const HexIceGame = () => {
   return (
     <div className="fixed inset-0 bg-gradient-to-b from-blue-100 to-blue-200 overflow-hidden">
       <div className="flex flex-col items-center justify-evenly h-full">
-        <div className="bg-white border-4 border-blue-400 rounded-lg shadow-xl p-6 flex flex-col justify-center" style={{ width: canvasSize + 8 }}>
+        <div
+          className="bg-white border-4 border-blue-400 rounded-lg shadow-xl p-6 flex flex-col justify-center"
+          style={{ width: canvasSize + 8 }}
+        >
           <h1 className="text-3xl font-bold text-center mb-2 text-blue-900">
             🐧 펭귄 아이스 배틀 🐧
           </h1>
           <div className="space-y-1">
             <div className="flex items-center justify-center text-sm text-gray-600">
               <div className="flex-1 text-right">
-                <span className="font-bold text-red-500">플레이어 1 (빨강)</span>: WASD
+                <span className="font-bold text-red-500">
+                  플레이어 1 (빨강)
+                </span>
+                : WASD
               </div>
               <span className="mx-4">|</span>
               <div className="flex-1 text-left">
-                <span className="font-bold text-blue-500">플레이어 2 (파랑)</span>: 화살표 키
+                <span className="font-bold text-blue-500">
+                  플레이어 2 (파랑)
+                </span>
+                : 화살표 키
               </div>
             </div>
-            
-              <p className="text-sm text-center text-gray-600">
+
+            <p className="text-sm text-center text-gray-600">
               얼음 위를 지나다니며 상대방을 떨어뜨리세요! 얼음은 두 번 밟으면
               사라집니다.
-            </p>    
+            </p>
           </div>
         </div>
 
         <div className="relative">
-        <canvas
-          ref={canvasRef}
-          width={canvasSize}
-          height={canvasSize}
-          className="border-4 border-blue-400 rounded-lg shadow-xl bg-white"
-        />
+          <canvas
+            ref={canvasRef}
+            width={canvasSize}
+            height={canvasSize}
+            className="border-4 border-blue-400 rounded-lg shadow-xl bg-white"
+          />
 
-        {gameState === "countdown" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
-            <div 
-              key={countdown}
-              className="text-white text-9xl font-bold animate-fade-in"
-            >
-              {countdown === 0 ? "GO!" : countdown}
-            </div>
-          </div>
-        )}
-
-        {gameState !== "playing" && gameState !== "countdown" && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
-            <div className="bg-white rounded-lg shadow-2xl p-8 text-center">
-              <h2 className="text-4xl font-bold mb-6 text-blue-900">
-                {gameState === "p1won"
-                  ? "🎉 플레이어 1 승리! 🎉"
-                  : "🎉 플레이어 2 승리! 🎉"}
-              </h2>
-              <button
-                onClick={resetGame}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-lg transition-colors text-xl"
+          {gameState === "countdown" && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+              <div
+                key={countdown}
+                className="text-white text-9xl font-bold animate-fade-in"
               >
-                🔄 다시 시작
-              </button>
+                {countdown === 0 ? "GO!" : countdown}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {gameState !== "playing" && gameState !== "countdown" && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg">
+              <div className="bg-white rounded-lg shadow-2xl p-8 text-center">
+                <h2 className="text-4xl font-bold mb-6 text-blue-900">
+                  {gameState === "p1won"
+                    ? "🎉 플레이어 1 승리! 🎉"
+                    : "🎉 플레이어 2 승리! 🎉"}
+                </h2>
+                <button
+                  onClick={resetGame}
+                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 px-10 rounded-lg transition-colors text-xl"
+                >
+                  🔄 다시 시작
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
