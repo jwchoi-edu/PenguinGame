@@ -473,7 +473,6 @@ const IceGame = () => {
         </a>
         <div>© 2025 중동고등학교 프로그래밍부</div>
         <div className="text-xs text-gray-500">Assisted by Claude</div>
-        
       </div>
     </div>
   )
