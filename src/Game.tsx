@@ -288,15 +288,15 @@ const HexIceGame = () => {
     setGameState('countdown')
     setCountdown(3)
 
+    let count = 3
     const countdownInterval = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 0) {
-          clearInterval(countdownInterval)
-          setGameState('playing')
-          return 0
-        }
-        return prev - 1
-      })
+      count -= 1
+      if (count <= 0) {
+        clearInterval(countdownInterval)
+        setGameState('playing')
+      } else {
+        setCountdown(count)
+      }
     }, 1000)
   }
 
