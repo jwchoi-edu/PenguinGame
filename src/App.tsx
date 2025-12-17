@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import type { HexGrid, Penguin, GameState } from './types'
-import { HEX_SIZE, MOVE_SPEED, FRICTION, BASE_CANVAS_SIZE } from './constants'
-import { hexToPixel, pixelToHex } from './utils/hex'
+import { BASE_CANVAS_SIZE, FRICTION, HEX_SIZE, MOVE_SPEED } from './constants'
+import { createInitialGrid, handleCollision } from './logic'
+import type { GameState, HexGrid, Penguin } from './types'
 import { drawHex, drawPenguin } from './utils/draw'
-import { handleCollision, createInitialGrid } from './logic'
+import { hexToPixel, pixelToHex } from './utils/hex'
 
 const IceGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)

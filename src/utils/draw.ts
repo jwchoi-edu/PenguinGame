@@ -1,5 +1,5 @@
-import type { HexGrid } from '../types'
 import { PENGUIN_RADIUS } from '../constants'
+import type { HexGrid } from '../types'
 
 export const drawHex = (
   ctx: CanvasRenderingContext2D,

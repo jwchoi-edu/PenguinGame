@@ -1,5 +1,5 @@
-import type { Penguin, HexGrid } from './types'
-import { PENGUIN_RADIUS, HEX_LAYERS } from './constants'
+import { HEX_LAYERS, PENGUIN_RADIUS } from './constants'
+import type { HexGrid, Penguin } from './types'
 
 export const handleCollision = (p1: Penguin, p2: Penguin) => {
   const dx = p2.x - p1.x
