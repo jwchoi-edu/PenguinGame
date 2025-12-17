@@ -1,7 +1,7 @@
-import HexIceGame from "./Game";
+import HexIceGame from './Game'
 
 function App() {
-  return <HexIceGame />;
+  return <HexIceGame />
 }
 
-export default App;
+export default App

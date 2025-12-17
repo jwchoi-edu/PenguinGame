@@ -9,7 +9,9 @@
     "rules": { "recommended": false },
     "includes": ["**", "!dist"]
   },
-  "javascript": { "formatter": { "quoteStyle": "double" } },
+  "javascript": {
+    "formatter": { "quoteStyle": "single", "semicolons": "asNeeded" }
+  },
   "overrides": [
     {
       "includes": ["**/*.{ts,tsx}"],
