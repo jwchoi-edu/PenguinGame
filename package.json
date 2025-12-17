@@ -1,13 +1,15 @@
 {
   "name": "penguin-game",
-  "private": true,
   "version": "0.0.0",
+  "homepage": "https://jwchooi-edu.github.io/PenguinGame",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "biome lint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "pnpm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^19.2.0",
