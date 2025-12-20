@@ -16,7 +16,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: {
     'import.meta.env.VITE_GIT_COMMIT_SHA': JSON.stringify(
-      process.env.VERCEL_GIT_COMMIT_SHA || getGitCommitSha()
+      process.env.VERCEL_GIT_COMMIT_SHA || getGitCommitSha(),
     ),
   },
 })
