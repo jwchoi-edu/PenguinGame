@@ -3,7 +3,6 @@ import {
   BASE_CANVAS_SIZE,
   HEX_SIZE,
   PENGUIN_FALL_DURATION,
-  PENGUIN_FOOT_OFFSET,
   TILE_FALL_DURATION,
   TILE_SHAKE_DURATION,
 } from '../constants'
@@ -17,6 +16,7 @@ const COLOR_PENGUIN_1 = '#ff6b6b'
 const COLOR_PENGUIN_2 = '#4dabf7'
 const MOVE_SPEED = 0.3
 const FRICTION = 0.75
+const COLLISION_OFFSET = 12
 
 const hexKey = (q: number, r: number) => `${q},${r}`
 
@@ -287,7 +287,7 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
       for (const [idx, penguin] of [p1, p2].entries()) {
         if (penguin.dead) continue
 
-        const hexCoord = pixelToHex(penguin.x, penguin.y + PENGUIN_FOOT_OFFSET)
+        const hexCoord = pixelToHex(penguin.x, penguin.y + COLLISION_OFFSET)
         const tileIndex = tileMapRef.current.get(hexKey(hexCoord.q, hexCoord.r))
 
         if (tileIndex === undefined) {

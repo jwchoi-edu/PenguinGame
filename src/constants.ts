@@ -23,5 +23,4 @@ export const TILE_FALL_DURATION = 1500
 // ========================================
 
 export const PENGUIN_RADIUS = 15
-export const PENGUIN_FOOT_OFFSET = 22
 export const PENGUIN_FALL_DURATION = 800
