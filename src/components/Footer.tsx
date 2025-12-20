@@ -1,4 +1,7 @@
 const Footer = () => {
+  const commitSha = import.meta.env.VITE_GIT_COMMIT_SHA || 'N/A'
+  const shortSha = commitSha.slice(0, 7)
+
   return (
     <div className="fixed bottom-4 right-4 text-right text-sm text-gray-600 space-y-1">
       <a
@@ -18,7 +21,9 @@ const Footer = () => {
         GitHub (jwchoi-edu/PenguinGame)
       </a>
       <div>© 2025 중동고등학교 프로그래밍부</div>
-      <div className="text-xs text-gray-500">Assisted by Claude</div>
+      <div className="text-xs text-gray-500">
+        Assisted by Claude · {shortSha}
+      </div>
     </div>
   )
 }
