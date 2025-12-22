@@ -1,5 +1,6 @@
-import { HEX_LAYERS, PENGUIN_RADIUS } from './constants'
-import type { HexTile, Penguin } from './types'
+import { HEX_LAYERS, PENGUIN_RADIUS, POLAR_BEAR_ATTACK_RADIUS } from './constants'
+import type { HexCoordinate, HexTile, Penguin } from './types'
+import { hexToPixel } from './utils/hex'
 
 /**
  * Impulse-based collision resolution
@@ -61,4 +62,60 @@ export const createInitialTiles = () => {
   }
 
   return tiles
+}
+
+/**
+ * Selects a random position away from penguins and returns surrounding tiles
+ * Targets area where neither penguin is present for polar bear attack
+ */
+export const selectPolarBearAttackTiles = (
+  tiles: HexTile[],
+  p1Position: { x: number; y: number },
+  p2Position: { x: number; y: number },
+): { tiles: HexCoordinate[]; targetX: number; targetY: number } => {
+  // Filter tiles in 'normal' or 'weak' state only
+  const availableTiles = tiles.filter(
+    (t) => t.state === 'normal' || t.state === 'weak',
+  )
+
+  if (availableTiles.length === 0) {
+    return { tiles: [], targetX: 0, targetY: 0 }
+  }
+
+  // Calculate distance from each tile to both penguins
+  const tilesWithDistance = availableTiles.map((tile) => {
+    const pos = hexToPixel(tile.q, tile.r)
+    const distToP1 = Math.hypot(pos.x - p1Position.x, pos.y - p1Position.y)
+    const distToP2 = Math.hypot(pos.x - p2Position.x, pos.y - p2Position.y)
+    const minDist = Math.min(distToP1, distToP2)
+    return { tile, minDist, pos }
+  })
+
+  // Select randomly from tiles farthest from penguins (top 30%)
+  tilesWithDistance.sort((a, b) => b.minDist - a.minDist)
+  const topThird = Math.max(1, Math.floor(tilesWithDistance.length * 0.3))
+  const targetTileData =
+    tilesWithDistance[Math.floor(Math.random() * topThird)]
+
+  const centerTile = targetTileData.tile
+  const targetPos = targetTileData.pos
+
+  // Select tiles surrounding center tile (hexagonal distance calculation)
+  const attackTiles: HexCoordinate[] = []
+  for (const tile of availableTiles) {
+    const distance = Math.max(
+      Math.abs(tile.q - centerTile.q),
+      Math.abs(tile.r - centerTile.r),
+      Math.abs(tile.s - centerTile.s),
+    )
+    if (distance <= POLAR_BEAR_ATTACK_RADIUS) {
+      attackTiles.push({ q: tile.q, r: tile.r, s: tile.s })
+    }
+  }
+
+  return {
+    tiles: attackTiles,
+    targetX: targetPos.x,
+    targetY: targetPos.y,
+  }
 }

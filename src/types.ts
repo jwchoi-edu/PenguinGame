@@ -29,3 +29,11 @@ export type Penguin = Position & {
 }
 
 export type GameState = 'countdown' | 'playing' | 'p1won' | 'p2won'
+
+export type PolarBearEvent = {
+  active: boolean
+  startTime: number
+  targetX: number
+  targetY: number
+  tiles: HexCoordinate[]
+}

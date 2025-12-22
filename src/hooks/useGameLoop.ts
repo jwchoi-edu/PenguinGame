@@ -1,15 +1,18 @@
 import { type RefObject, useCallback, useEffect, useRef, useState } from 'react'
 import {
   BASE_CANVAS_SIZE,
+  EVENT_MAX_INTERVAL,
+  EVENT_MIN_INTERVAL,
   HEX_SIZE,
   PENGUIN_FALL_DURATION,
+  POLAR_BEAR_DURATION,
   TILE_FALL_DURATION,
   TILE_SHAKE_DURATION,
 } from '../constants'
-import { createInitialTiles, handleCollision } from '../logic'
-import type { GameState, HexTile, Penguin } from '../types'
+import { createInitialTiles, handleCollision, selectPolarBearAttackTiles } from '../logic'
+import type { GameState, HexTile, Penguin, PolarBearEvent } from '../types'
 import { hexToPixel, pixelToHex } from '../utils/hex'
-import { drawHex, drawPenguin } from '../utils/renderer'
+import { drawHex, drawPenguin, drawPolarBear } from '../utils/renderer'
 
 const COLOR_BACKGROUND = '#e6f7ff'
 const COLOR_PENGUIN_1 = '#ff6b6b'
@@ -55,6 +58,14 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
   const tilesRef = useRef<HexTile[]>([])
   const tileMapRef = useRef<Map<string, number>>(new Map())
   const countdownIntervalRef = useRef<number | null>(null)
+  const nextEventTimeRef = useRef<number>(0)
+  const polarBearEventRef = useRef<PolarBearEvent>({
+    active: false,
+    startTime: 0,
+    targetX: 0,
+    targetY: 0,
+    tiles: [],
+  })
 
   // Penguin state (mutable for performance - updated every frame)
   const penguinRef = useRef<{ p1: Penguin; p2: Penguin }>({
@@ -136,6 +147,14 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
     tilesRef.current = []
     setTiles(newTiles)
     initializePenguins()
+    nextEventTimeRef.current = 0
+    polarBearEventRef.current = {
+      active: false,
+      startTime: 0,
+      targetX: 0,
+      targetY: 0,
+      tiles: [],
+    }
     startCountdown()
   }, [initializePenguins, startCountdown])
 
@@ -225,6 +244,95 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
       ctx.scale(canvasScale, canvasScale)
 
       // Tile update and rendering
+
+      // Polar bear event handling
+      if (nextEventTimeRef.current === 0) {
+        // Set initial event time
+        nextEventTimeRef.current =
+          currentTime +
+          EVENT_MIN_INTERVAL +
+          Math.random() * (EVENT_MAX_INTERVAL - EVENT_MIN_INTERVAL)
+      }
+
+      // Check for event trigger
+      if (
+        !polarBearEventRef.current.active &&
+        currentTime >= nextEventTimeRef.current
+      ) {
+        const { p1, p2 } = penguinRef.current
+        const attackData = selectPolarBearAttackTiles(
+          tilesRef.current,
+          { x: p1.x, y: p1.y },
+          { x: p2.x, y: p2.y },
+        )
+
+        if (attackData.tiles.length > 0) {
+          polarBearEventRef.current = {
+            active: true,
+            startTime: currentTime,
+            targetX: attackData.targetX,
+            targetY: attackData.targetY,
+            tiles: attackData.tiles,
+          }
+        }
+
+        // Set next event time
+        nextEventTimeRef.current =
+          currentTime +
+          EVENT_MIN_INTERVAL +
+          Math.random() * (EVENT_MAX_INTERVAL - EVENT_MIN_INTERVAL)
+      }
+
+      // Active polar bear event - tile destruction handling
+      if (polarBearEventRef.current.active) {
+        const elapsed = currentTime - polarBearEventRef.current.startTime
+        const progress = Math.min(1, elapsed / POLAR_BEAR_DURATION)
+
+        // Mark tiles as weak when event starts
+        if (elapsed >= 0 && elapsed < 100) {
+          // 100ms window check to execute only once
+          for (const attackTile of polarBearEventRef.current.tiles) {
+            const tileIndex = tileMapRef.current.get(
+              hexKey(attackTile.q, attackTile.r),
+            )
+            if (tileIndex !== undefined) {
+              const tile = tilesRef.current[tileIndex]
+              if (tile.state === 'normal') {
+                tilesRef.current[tileIndex] = {
+                  ...tile,
+                  state: 'weak',
+                  stateChangeTime: currentTime,
+                }
+              }
+            }
+          }
+        }
+
+        // Destroy tiles 1 second after event starts (after polar bear appears)
+        if (elapsed >= 1000 && elapsed < 1100) {
+          // 100ms window check to execute only once
+          for (const attackTile of polarBearEventRef.current.tiles) {
+            const tileIndex = tileMapRef.current.get(
+              hexKey(attackTile.q, attackTile.r),
+            )
+            if (tileIndex !== undefined) {
+              const tile = tilesRef.current[tileIndex]
+              if (tile.state !== 'gone' && tile.state !== 'falling') {
+                tilesRef.current[tileIndex] = {
+                  ...tile,
+                  state: 'falling',
+                  fallTime: currentTime,
+                }
+              }
+            }
+          }
+        }
+
+        // End event handling
+        if (progress >= 1) {
+          polarBearEventRef.current.active = false
+        }
+      }
 
       const newTiles = tilesRef.current.map((tile): HexTile => {
         const pos = hexToPixel(tile.q, tile.r)
@@ -361,6 +469,19 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
           p2.fallStartTime,
           currentTime,
         )
+
+      // Polar bear rendering (displayed on top)
+      if (polarBearEventRef.current.active) {
+        const elapsed = currentTime - polarBearEventRef.current.startTime
+        const progress = Math.min(1, elapsed / POLAR_BEAR_DURATION)
+
+        drawPolarBear(
+          ctx,
+          polarBearEventRef.current.targetX,
+          polarBearEventRef.current.targetY,
+          progress,
+        )
+      }
 
       ctx.restore()
 
