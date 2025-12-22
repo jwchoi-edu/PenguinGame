@@ -58,6 +58,8 @@ export const createInitialTiles = () => {
         state: 'normal',
         stateChangeTime: 0,
         fallTime: 0,
+        goneTime: 0,
+        regenerateTime: 0,
       })
   }
 

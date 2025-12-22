@@ -7,6 +7,10 @@ import {
   PENGUIN_FALL_DURATION,
   POLAR_BEAR_DURATION,
   TILE_FALL_DURATION,
+  TILE_REGENERATE_DURATION,
+  TILE_REGENERATE_MAX_TIME,
+  TILE_REGENERATE_MIN_TIME,
+  TILE_REGENERATE_PROBABILITY,
   TILE_SHAKE_DURATION,
 } from '../constants'
 import { createInitialTiles, handleCollision, selectPolarBearAttackTiles } from '../logic'
@@ -48,7 +52,10 @@ const checkPenguinFall = (
  * Main game loop hook
  * Returns: {gameState, countdown, resetGame}
  */
-export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
+export const useGameLoop = (
+  canvasRef: RefObject<HTMLCanvasElement | null>,
+  regenerationEnabled: boolean = true,
+) => {
   const [gameState, setGameState] = useState<GameState>('countdown')
   const [countdown, setCountdown] = useState(3)
   const [tiles, setTiles] = useState<HexTile[]>([])
@@ -337,12 +344,49 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
       const newTiles = tilesRef.current.map((tile): HexTile => {
         const pos = hexToPixel(tile.q, tile.r)
 
+        // Regenerating tiles: check if animation is complete
+        if (tile.state === 'regenerating') {
+          const elapsed = currentTime - tile.regenerateTime
+
+          if (elapsed >= TILE_REGENERATE_DURATION) {
+            return { ...tile, state: 'normal' }
+          }
+
+          // Renderer handles regeneration animation
+          drawHex(ctx, pos.x, pos.y, HEX_SIZE, tile, currentTime)
+          return tile
+        }
+
+        // Gone tiles: check for regeneration
+        if (tile.state === 'gone' && regenerationEnabled) {
+          const timeSinceGone = currentTime - tile.goneTime
+
+          // Check if tile should start regenerating
+          if (timeSinceGone >= TILE_REGENERATE_MIN_TIME) {
+            const maxWaitTime = TILE_REGENERATE_MAX_TIME - TILE_REGENERATE_MIN_TIME
+            const waitProgress = Math.min(
+              (timeSinceGone - TILE_REGENERATE_MIN_TIME) / maxWaitTime,
+              1,
+            )
+
+            // Random check each frame with increasing probability
+            if (Math.random() < TILE_REGENERATE_PROBABILITY * waitProgress * 0.01) {
+              return {
+                ...tile,
+                state: 'regenerating',
+                regenerateTime: currentTime,
+              }
+            }
+          }
+          return tile
+        }
+
         // Falling tiles: check if animation is complete
         if (tile.state === 'falling') {
           const elapsed = currentTime - tile.fallTime
 
           if (elapsed >= TILE_SHAKE_DURATION + TILE_FALL_DURATION)
-            return { ...tile, state: 'gone' }
+            return { ...tile, state: 'gone', goneTime: currentTime }
 
           // Renderer handles shake and fall animation
           drawHex(ctx, pos.x, pos.y, HEX_SIZE, tile, currentTime)
@@ -491,7 +535,7 @@ export const useGameLoop = (canvasRef: RefObject<HTMLCanvasElement | null>) => {
     gameLoop()
 
     return () => cancelAnimationFrame(animationId)
-  }, [gameState])
+  }, [gameState, regenerationEnabled])
 
   return { gameState, countdown, resetGame }
 }

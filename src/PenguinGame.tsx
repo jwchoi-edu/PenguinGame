@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import CountdownOverlay from './components/CountdownOverlay'
 import Footer from './components/Footer'
 import GameCanvas from './components/GameCanvas'
 import GameHeader from './components/GameHeader'
+import RegenerationToggle from './components/RegenerationToggle'
 import VictoryOverlay from './components/VictoryOverlay'
 import { useCanvasSize } from './hooks/useCanvasSize'
 import { useGameLoop } from './hooks/useGameLoop'
@@ -10,7 +11,8 @@ import { useGameLoop } from './hooks/useGameLoop'
 const PenguinGame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasSize = useCanvasSize()
-  const { gameState, countdown, resetGame } = useGameLoop(canvasRef)
+  const [regenerationEnabled, setRegenerationEnabled] = useState(true)
+  const { gameState, countdown, resetGame } = useGameLoop(canvasRef, regenerationEnabled)
 
   return (
     <div className="fixed inset-0 bg-linear-to-b from-blue-100 to-blue-200 overflow-hidden">
@@ -29,6 +31,11 @@ const PenguinGame = () => {
           )}
         </div>
       </div>
+
+      <RegenerationToggle
+        enabled={regenerationEnabled}
+        onToggle={setRegenerationEnabled}
+      />
 
       <Footer />
     </div>

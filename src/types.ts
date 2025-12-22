@@ -13,11 +13,13 @@ export type Position = {
   y: number
 }
 
-/** Tile state: normal → weak → falling → gone */
+/** Tile state: normal → weak → falling → gone → regenerating → normal */
 export type HexTile = HexCoordinate & {
-  state: 'normal' | 'weak' | 'falling' | 'gone'
+  state: 'normal' | 'weak' | 'falling' | 'gone' | 'regenerating'
   stateChangeTime: number
   fallTime: number
+  goneTime: number
+  regenerateTime: number
 }
 
 export type Penguin = Position & {

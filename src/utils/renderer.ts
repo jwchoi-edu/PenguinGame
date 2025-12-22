@@ -2,6 +2,7 @@ import {
   PENGUIN_FALL_DURATION,
   PENGUIN_RADIUS,
   TILE_FALL_DURATION,
+  TILE_REGENERATE_DURATION,
   TILE_SHAKE_DURATION,
 } from '../constants'
 import type { HexTile } from '../types'
@@ -16,6 +17,8 @@ const TILE_COLORS = {
   FALL: '#ff9999',
   FALL_STROKE: '#ff6666',
   STROKE: '#5599dd',
+  REGENERATE: '#90EE90',
+  REGENERATE_STROKE: '#32CD32',
 } as const
 
 const TILE_STROKE_WIDTH = 2
@@ -138,6 +141,36 @@ export const drawHex = (
       return
     }
 
+    return
+  } else if (hex.state === 'regenerating') {
+    const elapsed = currentTime - hex.regenerateTime
+    const regenProgress = Math.min(elapsed / TILE_REGENERATE_DURATION, 1)
+    const tileScale = TILE_FALL_SCALE + regenProgress * (1 - TILE_FALL_SCALE)
+    const alpha = regenProgress
+    const rotation = -regenProgress * TILE_FALL_ROTATION // Reverse rotation
+
+    ctx.save()
+    ctx.globalAlpha = alpha
+    ctx.translate(x, y)
+    ctx.rotate(rotation)
+    ctx.scale(tileScale, tileScale)
+
+    ctx.beginPath()
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 3) * i
+      const hx = size * Math.cos(angle)
+      const hy = size * Math.sin(angle)
+      if (i === 0) ctx.moveTo(hx, hy)
+      else ctx.lineTo(hx, hy)
+    }
+    ctx.closePath()
+    ctx.fillStyle = TILE_COLORS.REGENERATE
+    ctx.fill()
+    ctx.strokeStyle = TILE_COLORS.REGENERATE_STROKE
+    ctx.lineWidth = TILE_STROKE_WIDTH
+    ctx.stroke()
+
+    ctx.restore()
     return
   }
 

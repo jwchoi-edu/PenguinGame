@@ -9,13 +9,13 @@ export const BASE_CANVAS_SIZE = 800
 // ========================================
 
 export const HEX_SIZE = 35
-export const HEX_LAYERS = 4
+export const HEX_LAYERS = 5
 
 // ========================================
 // Tile Animation Timing
 // ========================================
 
-export const TILE_SHAKE_DURATION = 1500
+export const TILE_SHAKE_DURATION = 900
 export const TILE_FALL_DURATION = 1500
 
 // ========================================
@@ -33,3 +33,12 @@ export const EVENT_MIN_INTERVAL = 0 // 0 seconds
 export const EVENT_MAX_INTERVAL = 5000 // 5 seconds
 export const POLAR_BEAR_DURATION = 3000 // 3 seconds
 export const POLAR_BEAR_ATTACK_RADIUS = 1 // 3x3 hexagonal area
+
+// ========================================
+// Tile Regeneration
+// ========================================
+
+export const TILE_REGENERATE_MIN_TIME = 3000 // 3 seconds
+export const TILE_REGENERATE_MAX_TIME = 15000 // 15 seconds
+export const TILE_REGENERATE_PROBABILITY = 0.5 // 50% chance
+export const TILE_REGENERATE_DURATION = 1500 // 1.5 seconds
