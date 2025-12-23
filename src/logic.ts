@@ -1,4 +1,8 @@
-import { HEX_LAYERS, PENGUIN_RADIUS, POLAR_BEAR_ATTACK_RADIUS } from './constants'
+import {
+  HEX_LAYERS,
+  PENGUIN_RADIUS,
+  POLAR_BEAR_ATTACK_RADIUS,
+} from './constants'
 import type { HexCoordinate, HexTile, Penguin } from './types'
 import { hexToPixel } from './utils/hex'
 
@@ -96,8 +100,7 @@ export const selectPolarBearAttackTiles = (
   // Select randomly from tiles farthest from penguins (top 30%)
   tilesWithDistance.sort((a, b) => b.minDist - a.minDist)
   const topThird = Math.max(1, Math.floor(tilesWithDistance.length * 0.3))
-  const targetTileData =
-    tilesWithDistance[Math.floor(Math.random() * topThird)]
+  const targetTileData = tilesWithDistance[Math.floor(Math.random() * topThird)]
 
   const centerTile = targetTileData.tile
   const targetPos = targetTileData.pos

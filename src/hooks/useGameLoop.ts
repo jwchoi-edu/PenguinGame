@@ -13,7 +13,11 @@ import {
   TILE_REGENERATE_PROBABILITY,
   TILE_SHAKE_DURATION,
 } from '../constants'
-import { createInitialTiles, handleCollision, selectPolarBearAttackTiles } from '../logic'
+import {
+  createInitialTiles,
+  handleCollision,
+  selectPolarBearAttackTiles,
+} from '../logic'
 import type { GameState, HexTile, Penguin, PolarBearEvent } from '../types'
 import { hexToPixel, pixelToHex } from '../utils/hex'
 import { drawHex, drawPenguin, drawPolarBear } from '../utils/renderer'
@@ -56,7 +60,7 @@ export const useGameLoop = (
   canvasRef: RefObject<HTMLCanvasElement | null>,
   regenerationEnabled: boolean = true,
 ) => {
-  const [gameState, setGameState] = useState<GameState>('countdown')
+  const [gameState, setGameState] = useState<GameState>('waiting')
   const [countdown, setCountdown] = useState(3)
   const [tiles, setTiles] = useState<HexTile[]>([])
 
@@ -149,6 +153,22 @@ export const useGameLoop = (
     }, 1000)
   }, [])
 
+  const startGame = useCallback(() => {
+    const newTiles = createInitialTiles()
+    tilesRef.current = []
+    setTiles(newTiles)
+    initializePenguins()
+    nextEventTimeRef.current = 0
+    polarBearEventRef.current = {
+      active: false,
+      startTime: 0,
+      targetX: 0,
+      targetY: 0,
+      tiles: [],
+    }
+    startCountdown()
+  }, [initializePenguins, startCountdown])
+
   const resetGame = useCallback(() => {
     const newTiles = createInitialTiles()
     tilesRef.current = []
@@ -188,13 +208,12 @@ export const useGameLoop = (
     const newTiles = createInitialTiles()
     setTiles(newTiles)
     initializePenguins()
-    startCountdown()
 
     return () => {
       if (countdownIntervalRef.current)
         clearInterval(countdownIntervalRef.current)
     }
-  }, [initializePenguins, startCountdown])
+  }, [initializePenguins])
 
   // Build tile lookup map
   useEffect(() => {
@@ -363,14 +382,18 @@ export const useGameLoop = (
 
           // Check if tile should start regenerating
           if (timeSinceGone >= TILE_REGENERATE_MIN_TIME) {
-            const maxWaitTime = TILE_REGENERATE_MAX_TIME - TILE_REGENERATE_MIN_TIME
+            const maxWaitTime =
+              TILE_REGENERATE_MAX_TIME - TILE_REGENERATE_MIN_TIME
             const waitProgress = Math.min(
               (timeSinceGone - TILE_REGENERATE_MIN_TIME) / maxWaitTime,
               1,
             )
 
             // Random check each frame with increasing probability
-            if (Math.random() < TILE_REGENERATE_PROBABILITY * waitProgress * 0.01) {
+            if (
+              Math.random() <
+              TILE_REGENERATE_PROBABILITY * waitProgress * 0.01
+            ) {
               return {
                 ...tile,
                 state: 'regenerating',
@@ -537,5 +560,5 @@ export const useGameLoop = (
     return () => cancelAnimationFrame(animationId)
   }, [gameState, regenerationEnabled])
 
-  return { gameState, countdown, resetGame }
+  return { gameState, countdown, resetGame, startGame }
 }

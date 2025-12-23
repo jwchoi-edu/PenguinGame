@@ -30,7 +30,7 @@ export type Penguin = Position & {
   fallStartTime: number
 }
 
-export type GameState = 'countdown' | 'playing' | 'p1won' | 'p2won'
+export type GameState = 'waiting' | 'countdown' | 'playing' | 'p1won' | 'p2won'
 
 export type PolarBearEvent = {
   active: boolean

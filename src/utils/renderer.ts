@@ -360,7 +360,7 @@ export const drawPolarBear = (
   const size = 60 // 2x size increase
   const scale = Math.min(1, progress * 2) // Scale up during first 0.5s
   const alpha = progress > 0.8 ? (1 - progress) / 0.2 : 1 // Fade out in last 20%
-  
+
   // Fall animation: drops from above
   const fallDistance = 200 // Falling distance
   const fallProgress = Math.min(1, progress * 6) // Falls quickly in first 1/6 of duration
@@ -381,22 +381,54 @@ export const drawPolarBear = (
   // Hind legs (left) - to the sides
   ctx.fillStyle = '#d0d0d0'
   ctx.beginPath()
-  ctx.ellipse(-size * 0.6, size * 0.5, size * 0.25, size * 0.35, -0.3, 0, Math.PI * 2)
+  ctx.ellipse(
+    -size * 0.6,
+    size * 0.5,
+    size * 0.25,
+    size * 0.35,
+    -0.3,
+    0,
+    Math.PI * 2,
+  )
   ctx.fill()
 
   // Hind legs (right) - to the sides
   ctx.beginPath()
-  ctx.ellipse(size * 0.6, size * 0.5, size * 0.25, size * 0.35, 0.3, 0, Math.PI * 2)
+  ctx.ellipse(
+    size * 0.6,
+    size * 0.5,
+    size * 0.25,
+    size * 0.35,
+    0.3,
+    0,
+    Math.PI * 2,
+  )
   ctx.fill()
 
   // Front legs (left) - to the sides
   ctx.beginPath()
-  ctx.ellipse(-size * 0.5, size * 0.7, size * 0.22, size * 0.4, -0.2, 0, Math.PI * 2)
+  ctx.ellipse(
+    -size * 0.5,
+    size * 0.7,
+    size * 0.22,
+    size * 0.4,
+    -0.2,
+    0,
+    Math.PI * 2,
+  )
   ctx.fill()
 
   // Front legs (right) - to the sides
   ctx.beginPath()
-  ctx.ellipse(size * 0.5, size * 0.7, size * 0.22, size * 0.4, 0.2, 0, Math.PI * 2)
+  ctx.ellipse(
+    size * 0.5,
+    size * 0.7,
+    size * 0.22,
+    size * 0.4,
+    0.2,
+    0,
+    Math.PI * 2,
+  )
   ctx.fill()
 
   // Body (white)

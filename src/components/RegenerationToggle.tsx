@@ -5,7 +5,7 @@ type RegenerationToggleProps = {
 
 const RegenerationToggle = ({ enabled, onToggle }: RegenerationToggleProps) => {
   return (
-    <div className="fixed right-4 top-4 bg-white/80 backdrop-blur-sm rounded-lg p-3 shadow-lg z-10">
+    <div className="fixed right-4 top-4 bg-white border-4 border-blue-400 rounded-lg p-3 shadow-lg z-10">
       <label className="flex items-center gap-2 cursor-pointer">
         <input
           type="checkbox"
